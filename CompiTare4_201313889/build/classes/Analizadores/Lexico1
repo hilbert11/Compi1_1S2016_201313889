@@ -1,0 +1,296 @@
+package Analizadores;
+
+import compi1tarea4_201313889.Principal;
+import Acciones.ErrorT;
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import Acciones.ListaToken;
+
+%%
+%{
+ public ArrayList<ErrorT> lista_errores;
+
+%}
+
+%cupsym sym1
+%class Lexico1
+%cup
+%public
+%unicode
+%public
+%line
+%char
+%ignorecase
+%column
+
+
+digito = [0-9]
+numero = {digito}+("." {digito}+)?
+tstring = "\"" ~"\""
+tchar = "'" ~"'"
+letra = [a-zA-ZñÑáéíóú]
+id = {letra}+({letra}|{digito}|"_")*
+
+
+//-------------------> Estados
+%state COMENT_SIMPLE
+%state COMENT_MULTI
+
+%%
+/*-------------------------------------------------------------------
+----------------------------------------- Area de Reglas Lexicas
+-------------------------------------------------------------------*/
+
+//-------------------> Comentarios
+
+<YYINITIAL> "/*"            {yybegin(COMENT_MULTI);}
+<COMENT_MULTI> "*/"         {yybegin(YYINITIAL);}
+<COMENT_MULTI>  .           {/* Omitir como es un comentario :D */}
+
+<YYINITIAL> "//"            {yybegin(COMENT_SIMPLE);}
+<COMENT_SIMPLE> [^"\n"]     {}
+<COMENT_SIMPLE> "\n"        {yybegin(YYINITIAL);}
+<COMENT_SIMPLE>  .          {/* Omitir como es un comentario :D */}
+
+//------------------->INICIO
+
+<YYINITIAL> "+"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Mas");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Mas");
+                                //Principal.ListaT.add(new ListaToken ("+", yyline, yycolumn, "Signo Mas"));
+                                return new Symbol(sym1.mas, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "-"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Menos");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Menos");
+                                return new Symbol(sym1.menos, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "*"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Por");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Por");
+                                return new Symbol(sym1.por, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "/"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Div");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Div");
+                                return new Symbol(sym1.div, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "Rq"            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Raiz Cuadrada");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Raiz Cuadrada");
+                                return new Symbol(sym1.Rq, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "Ptn"           {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Potencia");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Potencia");
+                                return new Symbol(sym1.Ptn, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "="             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Igual");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Igual");
+                                return new Symbol(sym1.igual, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "("             {   System.out.println("Reconocido: <<"+yytext()+">>, Parentesis Izquierdo");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Parentesis Izquierdo");
+                                return new Symbol(sym1.parentesisIzq, yycolumn, yyline, yytext());}
+
+<YYINITIAL> ")"             {   System.out.println("Reconocido: <<"+yytext()+">>, Parentesis Derecho");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Parentesis Derecho");
+                                return new Symbol(sym1.parentesisDer, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "{"             {   System.out.println("Reconocido: <<"+yytext()+">>, Llave Izquierda");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Llave Izquierda");
+                                return new Symbol(sym1.llaveIzq, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "}"             {   System.out.println("Reconocido: <<"+yytext()+">>, Llave Derecha");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Llave Derecha");
+                                return new Symbol(sym1.llaveDer, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "["             {   System.out.println("Reconocido: <<"+yytext()+">>, Corchete Izquierdo");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Corchete Izquierdo");
+                                return new Symbol(sym1.corcheteIzq, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "]"             {   System.out.println("Reconocido: <<"+yytext()+">>, Corchete Derecho");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Corchete Derecho");
+                                return new Symbol(sym1.corcheteDer, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "<"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Menor");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Menor");
+                                return new Symbol(sym1.menor, yycolumn, yyline, yytext());}
+
+
+<YYINITIAL> ">"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Mayor");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Mayor");
+                                return new Symbol(sym1.mayor, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "<="|"=<"       {   System.out.println("Reconocido: <<"+yytext()+">>, Menor Igual");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Menor Igual");
+                                return new Symbol(sym1.menorigual, yycolumn, yyline, yytext());}
+
+<YYINITIAL> ">="|"=>"       {   System.out.println("Reconocido: <<"+yytext()+">>, Mayor Igual");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Mayor igual");
+                                return new Symbol(sym1.mayorigual, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "++"            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Mas mas");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Mas Mas");
+                                return new Symbol(sym1.masmas, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "%%"            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo And");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo And");
+                                return new Symbol(sym1.RAnd, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "##"            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Or");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Or");
+                                return new Symbol(sym1.ROr, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "=="            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Igual Igual");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Igual Igual");
+                                return new Symbol(sym1.RIgualIgual, yycolumn, yyline, yytext());}
+
+
+<YYINITIAL> "--"            {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Menos Menos");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Menos Menos");
+                                return new Symbol(sym1.menosmenos, yycolumn, yyline, yytext());}
+
+<YYINITIAL> ","             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Coma");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Coma");
+                                return new Symbol(sym1.coma, yycolumn, yyline, yytext());}
+
+//INICIO DE SESION
+
+<YYINITIAL> "$request$"     {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Request Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Request Abrir");
+                                return new Symbol(sym1.RRequestA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$request-$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Request Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Request Cerrar");
+                                return new Symbol(sym1.RRequestC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$InicioUsuario$"   {   System.out.println("Reconocido: <<"+yytext()+">>, Inicio de Usuario Abrir");
+                                    Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Inicio de Usuario Abrir");
+                                    return new Symbol(sym1.RInicioUA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$InicioUsuario-$"  {   System.out.println("Reconocido: <<"+yytext()+">>, Inicio de Usuario Cerrar");
+                                    Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Inicio de Usuario Cerrar");
+                                    return new Symbol(sym1.RInicioUC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$id$"          {   System.out.println("Reconocido: <<"+yytext()+">>, Palabra ID Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Palabra ID Abrir");
+                                return new Symbol(sym1.RPalabraIdA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$id-$"         {   System.out.println("Reconocido: <<"+yytext()+">>, Palabra ID Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Palabra ID Cerrar");
+                                return new Symbol(sym1.RPalabraIdC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$password$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Password Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Password Abrir");
+                                return new Symbol(sym1.RPasswordA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$password-$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Password Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Password Cerrar");
+                                return new Symbol(sym1.RPasswordC, yycolumn, yyline, yytext());}
+
+//Registrarse
+
+<YYINITIAL> "$CrearUsuario$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Crear Usuario Abrir");
+                                    Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Crear Usuario Abrir");
+                                    return new Symbol(sym1.RCrearUA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$CrearUsuario-$"   {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Crear Usuario Cerrar");
+                                    Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Crear Usuario Cerrar");
+                                    return new Symbol(sym1.RCrearUC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$nombre$"      {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Nombre Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Nombre Abrir");
+                                return new Symbol(sym1.RNombreA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$nombre-$"     {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Nombre Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Nombre Cerrar");
+                                return new Symbol(sym1.RNombreC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$apellido$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Apellido Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Apellido Abrir");
+                                return new Symbol(sym1.RApellidoA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$apellido-$"   {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Apellido Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Apellido Cerrar");
+                                return new Symbol(sym1.RApellidoC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$telefono$"    {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada No. Telefono Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada No. Telefono Abrir");
+                                return new Symbol(sym1.RTelefonoA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$telefono-$"   {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada No. Telefono Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada No. Telefono Cerrar");
+                                return new Symbol(sym1.RTelefonoC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$email$"       {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Email Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Email Abrir");
+                                return new Symbol(sym1.REmailA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$email-$"      {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Email Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Email Cerrar");
+                                return new Symbol(sym1.REmailC, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "@compi1.com"   {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Extension");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Extension");
+                                return new Symbol(sym1.RExtension, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$direccion$"   {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Direccion Abrir");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Direccion Abrir");
+                                return new Symbol(sym1.RDireccionA, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$direccion-$"  {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Direccion Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Direccion Cerrar");
+                                return new Symbol(sym1.RDireccionC, yycolumn, yyline, yytext());}
+
+//REGISTRO DE TIENDA
+
+<YYINITIAL> "$"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Dolar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Dolar");
+                                return new Symbol(sym1.dolar, yycolumn, yyline, yytext());}
+
+
+<YYINITIAL> "nombre"        {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Nombre");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Nombre");
+                                return new Symbol(sym1.RNombre, yycolumn, yyline, yytext());}
+
+//DECLARACION DE CONSTANTES
+
+<YYINITIAL> "Cons"          {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Cons");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Cons");
+                                return new Symbol(sym1.RCons, yycolumn, yyline, yytext());}
+
+<YYINITIAL> ";"             {   System.out.println("Reconocido: <<"+yytext()+">>, Signo Punto y Coma");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Signo Punto y Coma");
+                                return new Symbol(sym1.puntoycoma, yycolumn, yyline, yytext());}
+
+//ETIQUETA MATE
+
+<YYINITIAL> "mate"          {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Mate");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Mate");
+                                return new Symbol(sym1.RMate, yycolumn, yyline, yytext());}
+
+<YYINITIAL> "$mate-$"       {   System.out.println("Reconocido: <<"+yytext()+">>, Reservada Mate Cerrar");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Reservada Mate Cerrar");
+                                return new Symbol(sym1.RMateC, yycolumn, yyline, yytext());}
+
+
+//TIPO STRING
+
+<YYINITIAL> {numero}        {   System.out.println("Reconocido: <<"+yytext()+">>, numero ");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Numero");
+                                return new Symbol(sym1.numero, yycolumn, yyline, yytext());}
+
+<YYINITIAL> {tstring}       {   System.out.println("Reconocido: <<"+yytext()+">>, Cadena ");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Cadena");
+                                return new Symbol(sym1.tstring, yycolumn, yyline, yytext());}
+
+<YYINITIAL> {tchar}         {   System.out.println("Reconocido: <<"+yytext()+">>, tchar ");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Cadena Char");
+                                return new Symbol(sym1.tchar, yycolumn, yyline, yytext());}
+
+<YYINITIAL> {id}            {   System.out.println("Reconocido: <<"+yytext()+">>, id ");
+                                Principal.reconocido.add("Reconocido: <<"+yytext()+">>, Identificador");
+                                return new Symbol(sym1.id, yycolumn, yyline, yytext());}
+
+//-------------------> Espacios
+[ \t\r\n\f]+                 {/* Espacios en blanco, se ignoran */ }
+
+
+.                           {   System.out.println("Error Lexico: <<"+yytext()+">> ["+yyline+" , "+yycolumn+"]");
+                                lista_errores.add(new ErrorT(yytext(),yyline,yycolumn,"Error Lexico","Lexema Invalido"));}
+

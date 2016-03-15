@@ -1,0 +1,13 @@
+$request$
+//REGISTRO
+$CrearUsuario$
+$id$ 1 $id-$
+$nombre$ "nombre del usuario" $nombre-$
+$apellido$ "apellido del usuario" $apellido-$
+$password$ a1234b $password-$
+$telefono$ 12345678 $telefono-$
+$email$ correo@compi1.com $email-$
+$direccion$ "dirección del usuario" $direccion-$
+$CrearUsuario-$
+$request-$
+

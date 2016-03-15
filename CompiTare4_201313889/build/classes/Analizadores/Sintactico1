@@ -1,0 +1,173 @@
+package Analizadores;
+
+import java_cup.runtime.Symbol;
+import java.util.ArrayList;
+import Acciones.ErrorT;
+import Acciones.Token;
+import compi1tarea4_201313889.Principal;
+import java.io.*;
+import java.util.*;
+
+//*** Codigo para el parser, variables, metodos
+
+parser code
+{:  
+    public Nodo raiz;
+    public Principal archivoA;
+    public String resultado="";
+
+    //** Metodo al que se llama automaticamente ante algun error sintactico.*/
+    public void syntax_error(Symbol s)
+    {        
+        System.out.println("Error Sintactico Recuperado /////// lexema: " +s.value+ " Fila: " +s.right+ " Columna: "+s.left);
+        ErrorT denegado = new ErrorT(s.value.toString(), s.right,s.left,"ERROR SINTACTICO" ,"Lexema Invalido");
+        archivoA.lista_errores.add(denegado);
+    }
+
+    /**Metodo al que se llama en el momento en que ya no es posible una recuperacion de errores.*/
+    public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception
+    {        
+        System.out.println("Error Sintactico Panico ////// Lexema: " +s.value+" Fila: "+s.right+ " Columna: "+s.left);
+        ErrorT denegado = new ErrorT(s.value.toString(), s.right,s.left,"ERROR SINTACTICO" ,"Lexema Invalido");
+        archivoA.lista_errores.add(denegado);
+    }
+
+    public void semantic(Symbol cur_token, String n) 
+    {
+        System.out.println("error semantico ");
+    }
+
+    public void semantic(String msg, Object obj) {}
+
+:}
+
+//*** Codigo para las acciones gramaticales
+
+action code
+{:
+
+    public ArrayList<Token> lista_reservadasB = new ArrayList<>();
+    public void guardarReservada(String valor, int linea, int columna, String descripcion)
+    {
+        lista_reservadasB.add(new Token(valor, linea, columna, descripcion));
+    }
+:} 
+
+/*----------------------------------------------------------------------------
+-------------------------- Area de Declaraciones------------------------------
+----------------------------------------------------------------------------*/
+
+terminal mas, menos, por, div, Rq, Ptn, igual, coma, puntoycoma, parentesisIzq, parentesisDer, llaveIzq, llaveDer, corcheteIzq, corcheteDer;
+terminal mayor, menor, mayorigual, menorigual, masmas, menosmenos;
+terminal RRequestA, RRequestC, RInicioUA, RInicioUC, RPalabraIdA, RPalabraIdC, RPasswordA, RPasswordC;
+terminal RExtension;
+terminal RCrearUA, RCrearUC, RNombreA, RNombreC, RApellidoA, RApellidoC, RTelefonoA, RTelefonoC, REmailA, REmailC, RDireccionA, RDireccionC;
+terminal dolar, RNombre, RCons;
+terminal RMate, RMateC, RAnd, ROr, RIgualIgual;
+
+terminal String numero, tstring, tchar, id;
+
+non terminal Nodo INICIO, LOGIN, E, ET, ACCIONES, ACCIONESMATE, CUERPO1, CUERPO2;
+non terminal Nodo CONSTANTESYPARAMETROS, AUXCONSTANTESYPARAMETROS, LLAMARFUN, LLAMARFUN2;
+non terminal Nodo CONDI, COND;
+
+
+//precedence left igual, igual2, diferenteigual;
+precedence left mayor, menor, mayorigual, menorigual;
+precedence left mas, menos;
+precedence left por, div;
+//precedence left modular, potenciar;
+//precedence left masmas, menosmenos;
+
+start with INICIO;
+
+//INICIO::= LOGIN:raiz INICIO
+//        {:
+//            parser.raiz=raiz;
+//        :}
+//    | LOGIN
+//    ;
+
+INICIO::= LOGIN:raiz
+    {:
+        parser.raiz=raiz;
+    :}
+    | error INICIO
+    ;
+
+LOGIN::= RRequestA:rr ACCIONES:acc RRequestC {:
+            Nodo cuerpo = new Nodo("cuerpo", rrright, rrleft);
+            cuerpo.hijos.add(acc);
+            RESULT = cuerpo;
+        :}
+    |dolar RMate:rm RNombre igual tstring dolar ACCIONESMATE:accm RMateC {:
+            Nodo cuerpoacc = new Nodo("cuerpo", rmright, rmleft);
+            cuerpoacc.hijos.add(accm);
+            RESULT = cuerpoacc;
+            
+    :}
+    |error
+    
+    ;
+
+ACCIONES::= RInicioUA CUERPO1 RInicioUC ACCIONES
+    | RCrearUA CUERPO2 RCrearUC ACCIONES
+    |
+    ;
+
+ACCIONESMATE::= CONSTANTESYPARAMETROS ACCIONESMATE
+    | error
+    |
+    ;
+
+//CUERPO1 Iniciar sesion
+CUERPO1::= CUERPO1 RPalabraIdA E RPalabraIdC
+    |CUERPO1 RPasswordA E RPasswordC
+    |error
+    |
+    ;
+
+//CUERPO2 REGISTRAR USUARIO
+CUERPO2::= CUERPO2 RPalabraIdA E RPalabraIdC
+    |CUERPO2 RNombreA E RNombreC
+    |CUERPO2 RApellidoA E RApellidoC
+    |CUERPO2 RPasswordA E RPasswordC
+    |CUERPO2 RTelefonoA E RTelefonoC
+    |CUERPO2 REmailA E RExtension REmailC
+    |CUERPO2 RDireccionA E RDireccionC
+    |error
+    |
+    ;
+
+
+
+CONSTANTESYPARAMETROS::= RCons E igual E puntoycoma CONSTANTESYPARAMETROS
+    |E parentesisIzq E parentesisDer puntoycoma CONSTANTESYPARAMETROS
+    |E parentesisIzq E parentesisDer igual E puntoycoma CONSTANTESYPARAMETROS
+    |E parentesisIzq E coma AUXCONSTANTESYPARAMETROS parentesisDer igual E puntoycoma CONSTANTESYPARAMETROS
+        
+    ;
+
+AUXCONSTANTESYPARAMETROS ::= E coma AUXCONSTANTESYPARAMETROS
+    |E AUXCONSTANTESYPARAMETROS
+    |
+    ;
+
+E::=  E mas E
+    | E menos E
+    | E por E
+    | E div E
+    | Rq parentesisIzq E parentesisDer
+    | Ptn parentesisIzq E parentesisDer
+    | E masmas
+    | E menosmenos
+    | E menor E
+    | E mayor E
+    | E menorigual E
+    | E mayorigual E
+    | parentesisIzq E parentesisDer
+    | llaveIzq E llaveDer
+    | numero
+    | id
+    | tstring
+    ;
